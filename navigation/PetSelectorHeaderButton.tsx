@@ -1,10 +1,10 @@
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { useState } from "react";
 
-import { useAppData } from "../../context/AppDataContext";
-import { AppText } from "../../design-system/TextComponent";
+import { useAppData } from "../Context/AppDataContext";
+import { AppText } from "../Design-System/TextComponent";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { RootScreen, RootStackParamList } from "../../navigation/routes";
+import { RootScreen, RootStackParamList } from "./routes";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 
 export const PetSelectorHeaderButton = () => {
@@ -32,7 +32,7 @@ export const PetSelectorHeaderButton = () => {
         <AppText style={styles.headerButtonText} numberOfLines={1}>
           {currentPet?.name ?? "No pet"}
         </AppText>
-        <AppText style={styles.chevron}>⛛</AppText>
+        <FontAwesome5 name="buffer" />
       </Pressable>
 
       <Modal
@@ -50,7 +50,7 @@ export const PetSelectorHeaderButton = () => {
           />
           <View style={styles.sheet}>
             <View style={styles.sheetTitle}>
-              <AppText style={styles.sheetTitleText}>Change Pet</AppText>
+              <AppText style={styles.sheetTitleText}>My Pets</AppText>
               <Pressable
                 hitSlop={20}
                 onPress={() => {
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     paddingHorizontal: 20,
     paddingTop: 16,
+    minHeight: 200,
   },
   sheetTitleText: {
     fontSize: 18,

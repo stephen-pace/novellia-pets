@@ -1,4 +1,4 @@
-import type { SelectOption } from "../../design-system/Picker";
+import type { SelectOption } from "../../Design-System/Picker";
 import type { AllergyRecord, Reaction } from "../../types";
 
 export const severityLabels = {

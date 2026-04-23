@@ -1,10 +1,10 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
-import { useAppData } from "../context/AppDataContext";
-import { AppText, Title } from "../design-system/TextComponent";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import type { MedicationRecord } from "../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { AppText, Title } from "../../Design-System/TextComponent";
+import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
+import type { MedicationRecord } from "../../types";
 
 export const MedicationsTab = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -29,6 +29,7 @@ export const MedicationsTab = () => {
         <View style={styles.rowHeader}>
           <AppText style={styles.recordName}>{item.name}</AppText>
           <Pressable
+            accessibilityLabel={`Edit medication ${item.name}`}
             accessibilityRole="button"
             hitSlop={20}
             onPress={() =>
@@ -65,7 +66,7 @@ export const MedicationsTab = () => {
         data={medications}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <AppText style={styles.helperText}>No medications yet.</AppText>
+          <AppText style={styles.helperText}>No medications yet</AppText>
         }
         renderItem={renderMedication}
       />

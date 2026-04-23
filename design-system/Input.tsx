@@ -8,7 +8,11 @@ export const Input = ({ label, style, ...props }: InputProps) => {
   return (
     <View style={styles.container}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
-      <TextInput style={[styles.input, style]} {...props} />
+      <TextInput
+        accessibilityLabel={props.accessibilityLabel ?? label ?? props.placeholder}
+        style={[styles.input, style]}
+        {...props}
+      />
     </View>
   );
 };

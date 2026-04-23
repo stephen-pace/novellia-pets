@@ -1,11 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Animated, StyleSheet, View } from "react-native";
-
-import { Button } from "../design-system/Button";
-import { AppText, Title } from "../design-system/TextComponent";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import { Screen } from "../design-system/Screen";
+import { AppText } from "../Design-System/TextComponent";
+import { RootScreen, type RootStackParamList } from "../Navigation/routes";
+import { Screen } from "../Design-System/Screen";
 import { useEffect, useRef } from "react";
 
 type WelcomeNavigation = NativeStackNavigationProp<RootStackParamList>;

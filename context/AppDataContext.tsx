@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-import { clearAppData, loadAppData, saveAppData } from "../storage/appData";
+import { clearAppData, loadAppData, saveAppData } from "../Storage/appData";
 import type { AppData, Pet } from "../types";
 
 type AppDataContextValue = {

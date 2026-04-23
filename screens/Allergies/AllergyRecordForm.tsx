@@ -2,17 +2,15 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 
-import { useAppData } from "../context/AppDataContext";
-import { AppText } from "../design-system/TextComponent";
-import { Input } from "../design-system/Input";
-import { Screen } from "../design-system/Screen";
-import { SelectField } from "../design-system/Picker";
-import {
-  reactionOptions,
-  severityOptions,
-} from "../features/medical-records/constants";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import type { AllergyRecord, Reaction } from "../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { AppText } from "../../Design-System/TextComponent";
+import { Input } from "../../Design-System/Input";
+import { Screen } from "../../Design-System/Screen";
+import { SelectField } from "../../Design-System/Picker";
+import { reactionOptions, severityOptions } from "./constants";
+import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
+import type { AllergyRecord, Reaction } from "../../types";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 type AllergyRecordFormProps = NativeStackScreenProps<
   RootStackParamList,
@@ -88,7 +86,7 @@ export const AllergyRecordForm = ({
                   pressed && styles.deleteButtonPressed,
                 ]}
               >
-                <AppText style={styles.deleteButtonText}>⛔</AppText>
+                <FontAwesome5 name="minus-circle" color="red" size={20} />
               </Pressable>
             )
           : undefined,
@@ -229,9 +227,6 @@ const styles = StyleSheet.create({
   },
   deleteButtonPressed: {
     opacity: 0.7,
-  },
-  deleteButtonText: {
-    fontSize: 20,
   },
   label: {
     fontWeight: "600",

@@ -7,14 +7,14 @@ import {
   type RouteProp,
 } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useAppData } from "../context/AppDataContext";
-import { Input } from "../design-system/Input";
-import { Screen } from "../design-system/Screen";
-import { AppText } from "../design-system/TextComponent";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import { SelectField, type SelectOption } from "../design-system/Picker";
+import { useAppData } from "../Context/AppDataContext";
+import { Input } from "../Design-System/Input";
+import { Screen } from "../Design-System/Screen";
+import { AppText } from "../Design-System/TextComponent";
+import { RootScreen, type RootStackParamList } from "../Navigation/routes";
+import { SelectField, type SelectOption } from "../Design-System/Picker";
 import type { AnimalType } from "../types";
-import { PhotoPicker } from "../design-system/PhotoPicker";
+import { PhotoPicker } from "../Design-System/PhotoPicker";
 
 type AddPetNavigation = NativeStackNavigationProp<RootStackParamList>;
 type AddPetRoute = RouteProp<RootStackParamList, typeof RootScreen.AddPet>;
@@ -64,7 +64,12 @@ export const AddPet = () => {
     navigation.setOptions({
       headerRight: isFromHome
         ? () => (
-            <Pressable onPress={handleNext} hitSlop={8}>
+            <Pressable
+              accessibilityLabel="Submit new pet"
+              accessibilityRole="button"
+              onPress={handleNext}
+              hitSlop={8}
+            >
               <AppText style={styles.headerSubmit}>Submit</AppText>
             </Pressable>
           )
@@ -79,6 +84,8 @@ export const AddPet = () => {
       onButtonPress={isFromHome ? undefined : handleNext}
     >
       <Input
+        autoCorrect={false}
+        placeholder="Fido"
         label="Pet name"
         value={petName}
         onChangeText={(text) => {

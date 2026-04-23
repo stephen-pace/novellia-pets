@@ -8,23 +8,21 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
-import { AppDataProvider, useAppData } from "./context/AppDataContext";
-import { RootScreen, type RootStackParamList } from "./navigation/routes";
-import { AddPet } from "./screens/AddPet";
-import { CreateUsername } from "./screens/CreateUsername";
-import { Welcome } from "./screens/Welcome";
-import { MedicalRecords } from "./screens/MedicalRecords";
-import { VaccineRecordForm } from "./screens/VaccineRecordForm";
-import { MedicationRecordForm } from "./screens/MedicationRecordForm";
-import { AllergyRecordForm } from "./screens/AllergyRecordForm";
-import { VaccinesTab } from "./screens/Vaccines";
-import { AllergiesTab } from "./screens/Allergies";
-import { MedicationsTab } from "./screens/Medications";
-import { PetSelectorHeaderButton } from "./features/pets/PetSelectorHeaderButton";
+import { AppDataProvider, useAppData } from "./Context/AppDataContext";
+import { RootScreen, type RootStackParamList } from "./Navigation/routes";
+import { AddPet } from "./Screens/AddPet";
+import { CreateUsername } from "./Screens/CreateUsername";
+import { Welcome } from "./Screens/Welcome";
+import { VaccineRecordForm } from "./Screens/Vaccines/VaccineRecordForm";
+import { MedicationRecordForm } from "./Screens/Medications/MedicationRecordForm";
+import { AllergyRecordForm } from "./Screens/Allergies/AllergyRecordForm";
+import { VaccinesTab } from "./Screens/Vaccines/Vaccines";
+import { AllergiesTab } from "./Screens/Allergies/Allergies";
+import { MedicationsTab } from "./Screens/Medications/Medications";
+import { PetSelectorHeaderButton } from "./Navigation/PetSelectorHeaderButton";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-
-import { ProfileMenu } from "./screens/profile/ProfileMenu";
-import { ProfileTab } from "./screens/profile/Profile";
+import { ProfileMenu } from "./Screens/Profile/ProfileMenu";
+import { ProfileTab } from "./Screens/Profile/Profile";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -73,6 +71,7 @@ const HomeTabs = () => {
 
   useEffect(() => {
     navigation.setOptions({
+      title: selectedTab === HomeTab.Profile ? "Profile" : "Medical History",
       headerLeft: currentPet
         ? () =>
             selectedTab === HomeTab.Profile ? (
@@ -95,15 +94,18 @@ const HomeTabs = () => {
 
     return () => {
       navigation.setOptions({
+        title: "Medical History",
         headerLeft: undefined,
       });
     };
   }, [currentPet, navigateToAddMedicalRecord, navigation, selectedTab]);
 
+  // Tab navigator for medical records since it keeps the UX clear and data
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarActiveTintColor: "#00A36C",
       }}
     >
       <Tab.Screen
@@ -209,20 +211,12 @@ const AppNavigator = () => {
         />
         <Stack.Screen
           options={{
-            title: "",
+            title: "Medical History",
             headerShown: true,
             headerRight: () => <PetSelectorHeaderButton />,
           }}
           name={RootScreen.Home}
           component={HomeTabs}
-        />
-        <Stack.Screen
-          options={{
-            headerShown: true,
-            title: "Medical Records",
-          }}
-          name={RootScreen.MedicalRecords}
-          component={MedicalRecords}
         />
         <Stack.Screen
           options={{

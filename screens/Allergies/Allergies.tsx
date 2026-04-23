@@ -1,14 +1,11 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
-import { useAppData } from "../context/AppDataContext";
-import { AppText, Title } from "../design-system/TextComponent";
-import {
-  reactionLabels,
-  severityLabels,
-} from "../features/medical-records/constants";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import type { AllergyRecord } from "../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { AppText, Title } from "../../Design-System/TextComponent";
+import { reactionLabels, severityLabels } from "./constants";
+import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
+import type { AllergyRecord } from "../../types";
 
 const formatReactions = (allergy: AllergyRecord) => {
   if (allergy.reactions.length === 0) {
@@ -42,6 +39,7 @@ export const AllergiesTab = () => {
         <View style={styles.rowHeader}>
           <AppText style={styles.recordName}>{item.name}</AppText>
           <Pressable
+            accessibilityLabel={`Edit allergy ${item.name}`}
             accessibilityRole="button"
             hitSlop={20}
             onPress={() =>
@@ -76,7 +74,7 @@ export const AllergiesTab = () => {
         data={allergies}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <AppText style={styles.helperText}>No allergies yet.</AppText>
+          <AppText style={styles.helperText}>No allergies yet</AppText>
         }
         renderItem={renderAllergy}
       />

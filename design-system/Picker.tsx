@@ -1,3 +1,4 @@
+import { FontAwesome5 } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Modal,
@@ -46,7 +47,7 @@ export const SelectField = <T extends string>({
         style={styles.field}
       >
         <Text style={styles.valueText}>{selectedOption?.label ?? value}</Text>
-        <Text style={styles.chevron}>⌄</Text>
+        <FontAwesome5 name="chevron-down" size={16} />
       </Pressable>
 
       <Modal
@@ -116,10 +117,6 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 16,
-  },
-  chevron: {
-    color: "#667085",
-    fontSize: 18,
   },
   modalContainer: {
     flex: 1,

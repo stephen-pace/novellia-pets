@@ -19,17 +19,28 @@ export const Button = ({
   textStyle,
   ...props
 }: ButtonProps) => {
+  const isDisabled = Boolean(disabled);
+
   return (
     <Pressable
+      accessibilityLabel={title}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isDisabled }}
       disabled={disabled}
       style={[
         styles.button,
-        disabled && styles.buttonDisabled,
+        isDisabled && styles.buttonDisabled,
         style as ViewStyle,
       ]}
       {...props}
     >
-      <Text style={[styles.buttonText, disabled && styles.buttonTextDisabled, textStyle]}>
+      <Text
+        style={[
+          styles.buttonText,
+          isDisabled && styles.buttonTextDisabled,
+          textStyle,
+        ]}
+      >
         {title}
       </Text>
     </Pressable>

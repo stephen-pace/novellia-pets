@@ -1,10 +1,10 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
-import { useAppData } from "../context/AppDataContext";
-import { AppText, Title } from "../design-system/TextComponent";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import type { VaccineRecord } from "../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { AppText, Title } from "../../Design-System/TextComponent";
+import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
+import type { VaccineRecord } from "../../types";
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString();
@@ -38,6 +38,7 @@ export const VaccinesTab = () => {
           <AppText style={styles.vaccineName}>{item.name}</AppText>
           <Pressable
             hitSlop={20}
+            accessibilityLabel={`Edit vaccine ${item.name}`}
             accessibilityRole="button"
             onPress={() =>
               navigation.navigate(RootScreen.VaccineRecordForm, {
@@ -71,7 +72,7 @@ export const VaccinesTab = () => {
         renderItem={renderVaccine}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <AppText style={styles.helperText}>No vaccines yet.</AppText>
+          <AppText style={styles.helperText}>No vaccines yet</AppText>
         }
       />
     </View>

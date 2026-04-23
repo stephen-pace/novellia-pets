@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -10,14 +10,30 @@ import {
   View,
 } from "react-native";
 
-import { useAppData } from "../../context/AppDataContext";
-import { Button } from "../../design-system/Button";
-import { Input } from "../../design-system/Input";
-import { SelectField, type SelectOption } from "../../design-system/Picker";
-import { AppText, Title } from "../../design-system/TextComponent";
-import type { AnimalType } from "../../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { Button } from "../../Design-System/Button";
+import { Input } from "../../Design-System/Input";
+import { SelectField, type SelectOption } from "../../Design-System/Picker";
+import { AppText, Title } from "../../Design-System/TextComponent";
+import type { AnimalType, Pet } from "../../types";
 
-type EditableField = "name" | "breed" | "dateOfBirth" | "animalType" | null;
+type ProfileDraft = {
+  name: string;
+  breed: string;
+  dateOfBirth: Date;
+  animalType: AnimalType;
+};
+
+type EditableField = keyof ProfileDraft | null;
+
+type EditableProfileRowProps = {
+  label: string;
+  isEditing: boolean;
+  onEditPress: () => void;
+  renderEdit: () => ReactNode;
+  children: ReactNode;
+  editLabel?: string;
+};
 
 const animalOptions = [
   { label: "Dog", value: "dog" },
@@ -45,33 +61,59 @@ const getDateValue = (dateOfBirth?: string) => {
   return dateOfBirth ? new Date(dateOfBirth) : new Date();
 };
 
+const buildDraft = (
+  pet?: Pick<Pet, "name" | "breed" | "dateOfBirth" | "animalType"> | null,
+): ProfileDraft => {
+  return {
+    name: pet?.name ?? "",
+    breed: pet?.breed ?? "",
+    dateOfBirth: getDateValue(pet?.dateOfBirth),
+    animalType: pet?.animalType ?? "dog",
+  };
+};
+
+const EditableProfileRow = ({
+  label,
+  isEditing,
+  onEditPress,
+  renderEdit,
+  children,
+  editLabel,
+}: EditableProfileRowProps) => {
+  return (
+    <View style={styles.row}>
+      <View style={styles.rowHeader}>
+        <AppText style={styles.label}>{label}</AppText>
+        {!isEditing ? (
+          <Pressable
+            accessibilityLabel={editLabel ?? `Edit ${label.toLowerCase()}`}
+            accessibilityRole="button"
+            hitSlop={20}
+            onPress={onEditPress}
+          >
+            <AppText style={styles.editText}>Edit</AppText>
+          </Pressable>
+        ) : null}
+      </View>
+
+      {isEditing ? renderEdit() : children}
+    </View>
+  );
+};
+
 export const ProfileTab = () => {
   const { currentPet, updatePet } = useAppData();
   const [editingField, setEditingField] = useState<EditableField>(null);
-  const [nameDraft, setNameDraft] = useState(currentPet?.name ?? "");
-  const [breedDraft, setBreedDraft] = useState(currentPet?.breed ?? "");
-  const [dateOfBirthDraft, setDateOfBirthDraft] = useState(
-    getDateValue(currentPet?.dateOfBirth),
-  );
-  const [animalTypeDraft, setAnimalTypeDraft] = useState<AnimalType>(
-    currentPet?.animalType ?? "dog",
+  const [draft, setDraft] = useState<ProfileDraft>(() =>
+    buildDraft(currentPet),
   );
   const [error, setError] = useState("");
 
   useEffect(() => {
     setEditingField(null);
-    setNameDraft(currentPet?.name ?? "");
-    setBreedDraft(currentPet?.breed ?? "");
-    setDateOfBirthDraft(getDateValue(currentPet?.dateOfBirth));
-    setAnimalTypeDraft(currentPet?.animalType ?? "dog");
+    setDraft(buildDraft(currentPet));
     setError("");
-  }, [
-    currentPet?.id,
-    currentPet?.name,
-    currentPet?.breed,
-    currentPet?.dateOfBirth,
-    currentPet?.animalType,
-  ]);
+  }, [currentPet]);
 
   if (!currentPet) {
     return (
@@ -82,76 +124,96 @@ export const ProfileTab = () => {
     );
   }
 
-  const cancelEditing = () => {
-    setEditingField(null);
-    setNameDraft(currentPet.name);
-    setBreedDraft(currentPet.breed ?? "");
-    setDateOfBirthDraft(getDateValue(currentPet.dateOfBirth));
-    setAnimalTypeDraft(currentPet.animalType);
+  const resetDraft = () => {
+    setDraft(buildDraft(currentPet));
+  };
+
+  const updateDraft = <K extends keyof ProfileDraft>(
+    key: K,
+    value: ProfileDraft[K],
+  ) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      [key]: value,
+    }));
     setError("");
   };
 
-  const saveName = () => {
-    const trimmedName = nameDraft.trim();
+  const startEditing = (field: Exclude<EditableField, null>) => {
+    setEditingField(field);
+    resetDraft();
+    setError("");
+  };
 
-    if (trimmedName.length === 0) {
-      setError("Please enter a name");
+  const cancelEditing = () => {
+    setEditingField(null);
+    resetDraft();
+    setError("");
+  };
+
+  const savePet = (
+    updates: Partial<
+      Pick<Pet, "name" | "breed" | "dateOfBirth" | "animalType">
+    >,
+    errorMessage: string,
+  ) => {
+    updatePet({
+      ...currentPet,
+      ...updates,
+    })
+      .then(() => {
+        setEditingField(null);
+        setError("");
+      })
+      .catch(() => {
+        setError(errorMessage);
+      });
+  };
+
+  const saveField = (field: Exclude<EditableField, null>) => {
+    if (field === "name") {
+      const trimmedName = draft.name.trim();
+
+      if (trimmedName.length === 0) {
+        setError("Please enter a name");
+        return;
+      }
+
+      savePet(
+        {
+          name: trimmedName,
+        },
+        "Failed to update name, please try again",
+      );
       return;
     }
 
-    updatePet({
-      ...currentPet,
-      name: trimmedName,
-    })
-      .then(() => {
-        setEditingField(null);
-        setError("");
-      })
-      .catch(() => {
-        setError("Failed to update name, please try again");
-      });
-  };
+    if (field === "breed") {
+      savePet(
+        {
+          breed: draft.breed.trim() || undefined,
+        },
+        "Failed to update breed, please try again",
+      );
+      return;
+    }
 
-  const saveBreed = () => {
-    updatePet({
-      ...currentPet,
-      breed: breedDraft.trim() || undefined,
-    })
-      .then(() => {
-        setEditingField(null);
-        setError("");
-      })
-      .catch(() => {
-        setError("Failed to update breed, please try again");
-      });
-  };
+    if (field === "dateOfBirth") {
+      savePet(
+        {
+          dateOfBirth: draft.dateOfBirth.toISOString(),
+        },
+        "Failed to update birthdate, please try again",
+      );
+      return;
+    }
 
-  const saveDateOfBirth = () => {
-    updatePet({
-      ...currentPet,
-      dateOfBirth: dateOfBirthDraft.toISOString(),
-    })
-      .then(() => {
-        setEditingField(null);
-        setError("");
-      })
-      .catch(() => {
-        setError("Failed to update birthdate, please try again");
-      });
-  };
-
-  const saveAnimalType = () => {
-    updatePet({
-      ...currentPet,
-      animalType: animalTypeDraft,
-    })
-      .then(() => {
-        setEditingField(null);
-        setError("");
-      })
-      .catch(() => {
-        setError("Failed to update animal type, please try again");
-      });
+    savePet(
+      {
+        animalType: draft.animalType,
+      },
+      "Failed to update animal type, please try again",
+    );
   };
 
   const changePhoto = async () => {
@@ -181,6 +243,24 @@ export const ProfileTab = () => {
     });
   };
 
+  const renderEditActions = (field: Exclude<EditableField, null>) => {
+    return (
+      <View style={styles.actions}>
+        <Button
+          title="Cancel"
+          onPress={cancelEditing}
+          style={styles.secondaryButton}
+          textStyle={styles.secondaryButtonText}
+        />
+        <Button
+          title="Save"
+          onPress={() => saveField(field)}
+          style={styles.actionButton}
+        />
+      </View>
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.hero}>
@@ -188,6 +268,8 @@ export const ProfileTab = () => {
           <View style={styles.avatar}>
             {currentPet.photoUri ? (
               <Image
+                accessibilityLabel={`${currentPet.name} profile photo`}
+                accessible
                 source={{ uri: currentPet.photoUri }}
                 style={styles.avatarImage}
               />
@@ -216,180 +298,84 @@ export const ProfileTab = () => {
       </View>
 
       <View style={styles.section}>
-        <View style={styles.row}>
-          <View style={styles.rowHeader}>
-            <AppText style={styles.label}>Name</AppText>
-            {editingField !== "name" ? (
-              <Pressable
-                accessibilityRole="button"
-                hitSlop={20}
-                onPress={() => {
-                  setEditingField("name");
-                  setError("");
-                }}
-              >
-                <AppText style={styles.editText}>Edit</AppText>
-              </Pressable>
-            ) : null}
-          </View>
-
-          {editingField === "name" ? (
+        <EditableProfileRow
+          label="Name"
+          editLabel="Edit pet name"
+          isEditing={editingField === "name"}
+          onEditPress={() => startEditing("name")}
+          renderEdit={() => (
             <View style={styles.editGroup}>
               <Input
-                value={nameDraft}
-                onChangeText={(text) => {
-                  setNameDraft(text);
-                  setError("");
-                }}
+                value={draft.name}
+                onChangeText={(text) => updateDraft("name", text)}
               />
-              <View style={styles.actions}>
-                <Button
-                  title="Cancel"
-                  onPress={cancelEditing}
-                  style={styles.secondaryButton}
-                  textStyle={styles.secondaryButtonText}
-                />
-                <Button
-                  title="Save"
-                  onPress={saveName}
-                  style={styles.actionButton}
-                />
-              </View>
+              {renderEditActions("name")}
             </View>
-          ) : (
-            <AppText>{currentPet.name}</AppText>
           )}
-        </View>
+        >
+          <AppText>{currentPet.name}</AppText>
+        </EditableProfileRow>
 
-        <View style={styles.row}>
-          <View style={styles.rowHeader}>
-            <AppText style={styles.label}>Breed</AppText>
-            {editingField !== "breed" ? (
-              <Pressable
-                accessibilityRole="button"
-                hitSlop={20}
-                onPress={() => {
-                  setEditingField("breed");
-                  setError("");
-                }}
-              >
-                <AppText style={styles.editText}>Edit</AppText>
-              </Pressable>
-            ) : null}
-          </View>
-
-          {editingField === "breed" ? (
+        <EditableProfileRow
+          label="Breed"
+          editLabel="Edit pet breed"
+          isEditing={editingField === "breed"}
+          onEditPress={() => startEditing("breed")}
+          renderEdit={() => (
             <View style={styles.editGroup}>
-              <Input value={breedDraft} onChangeText={setBreedDraft} />
-              <View style={styles.actions}>
-                <Button
-                  title="Cancel"
-                  onPress={cancelEditing}
-                  style={styles.secondaryButton}
-                  textStyle={styles.secondaryButtonText}
-                />
-                <Button
-                  title="Save"
-                  onPress={saveBreed}
-                  style={styles.actionButton}
-                />
-              </View>
+              <Input
+                value={draft.breed}
+                onChangeText={(text) => updateDraft("breed", text)}
+              />
+              {renderEditActions("breed")}
             </View>
-          ) : (
-            <AppText>{currentPet.breed || "Not set"}</AppText>
           )}
-        </View>
+        >
+          <AppText>{currentPet.breed || "Not set"}</AppText>
+        </EditableProfileRow>
 
-        <View style={styles.row}>
-          <View style={styles.rowHeader}>
-            <AppText style={styles.label}>Birthdate</AppText>
-            {editingField !== "dateOfBirth" ? (
-              <Pressable
-                accessibilityRole="button"
-                hitSlop={20}
-                onPress={() => {
-                  setEditingField("dateOfBirth");
-                  setError("");
-                }}
-              >
-                <AppText style={styles.editText}>Edit</AppText>
-              </Pressable>
-            ) : null}
-          </View>
-
-          {editingField === "dateOfBirth" ? (
+        <EditableProfileRow
+          label="Birthdate"
+          editLabel="Edit pet birthdate"
+          isEditing={editingField === "dateOfBirth"}
+          onEditPress={() => startEditing("dateOfBirth")}
+          renderEdit={() => (
             <View style={styles.editGroup}>
               <DateTimePicker
-                value={dateOfBirthDraft}
+                value={draft.dateOfBirth}
                 mode="date"
                 display="spinner"
                 onChange={(_event, selectedDate) => {
                   if (selectedDate) {
-                    setDateOfBirthDraft(selectedDate);
+                    updateDraft("dateOfBirth", selectedDate);
                   }
                 }}
               />
-              <View style={styles.actions}>
-                <Button
-                  title="Cancel"
-                  onPress={cancelEditing}
-                  style={styles.secondaryButton}
-                  textStyle={styles.secondaryButtonText}
-                />
-                <Button
-                  title="Save"
-                  onPress={saveDateOfBirth}
-                  style={styles.actionButton}
-                />
-              </View>
+              {renderEditActions("dateOfBirth")}
             </View>
-          ) : (
-            <AppText>{formatDate(currentPet.dateOfBirth)}</AppText>
           )}
-        </View>
+        >
+          <AppText>{formatDate(currentPet.dateOfBirth)}</AppText>
+        </EditableProfileRow>
 
-        <View style={styles.row}>
-          <View style={styles.rowHeader}>
-            <AppText style={styles.label}>Animal type</AppText>
-            {editingField !== "animalType" ? (
-              <Pressable
-                accessibilityRole="button"
-                hitSlop={20}
-                onPress={() => {
-                  setEditingField("animalType");
-                  setError("");
-                }}
-              >
-                <AppText style={styles.editText}>Edit</AppText>
-              </Pressable>
-            ) : null}
-          </View>
-
-          {editingField === "animalType" ? (
+        <EditableProfileRow
+          label="Animal type"
+          editLabel="Edit pet animal type"
+          isEditing={editingField === "animalType"}
+          onEditPress={() => startEditing("animalType")}
+          renderEdit={() => (
             <View style={styles.editGroup}>
               <SelectField
-                value={animalTypeDraft}
+                value={draft.animalType}
                 options={animalOptions}
-                onChange={setAnimalTypeDraft}
+                onChange={(value) => updateDraft("animalType", value)}
               />
-              <View style={styles.actions}>
-                <Button
-                  title="Cancel"
-                  onPress={cancelEditing}
-                  style={styles.secondaryButton}
-                  textStyle={styles.secondaryButtonText}
-                />
-                <Button
-                  title="Save"
-                  onPress={saveAnimalType}
-                  style={styles.actionButton}
-                />
-              </View>
+              {renderEditActions("animalType")}
             </View>
-          ) : (
-            <AppText>{getAnimalLabel(currentPet.animalType)}</AppText>
           )}
-        </View>
+        >
+          <AppText>{getAnimalLabel(currentPet.animalType)}</AppText>
+        </EditableProfileRow>
       </View>
 
       {error ? <AppText style={styles.errorText}>{error}</AppText> : null}

@@ -1,47 +1,51 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Alert, Pressable, StyleSheet } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 
-import { useAppData } from "../context/AppDataContext";
-import { AppText } from "../design-system/TextComponent";
-import { Input } from "../design-system/Input";
-import { Screen } from "../design-system/Screen";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-import type { VaccineRecord } from "../types";
+import { useAppData } from "../../Context/AppDataContext";
+import { AppText } from "../../Design-System/TextComponent";
+import { Input } from "../../Design-System/Input";
+import { Screen } from "../../Design-System/Screen";
+import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
+import type { MedicationRecord } from "../../types";
 
-type VaccineRecordFormProps = NativeStackScreenProps<
+type MedicationRecordFormProps = NativeStackScreenProps<
   RootStackParamList,
-  typeof RootScreen.VaccineRecordForm
+  typeof RootScreen.MedicationRecordForm
 >;
 
-export const VaccineRecordForm = ({
+export const MedicationRecordForm = ({
   route,
   navigation,
-}: VaccineRecordFormProps) => {
+}: MedicationRecordFormProps) => {
   const { petId, recordId } = route.params;
   const { pets, updatePet } = useAppData();
   const pet = pets.find((existingPet) => existingPet.id === petId);
   const existingRecord = (pet?.medicalRecords ?? []).find(
-    (record): record is VaccineRecord =>
-      record.type === "vaccine" && record.id === recordId,
+    (record): record is MedicationRecord =>
+      record.type === "medication" && record.id === recordId,
   );
   const isEditing = Boolean(recordId);
 
-  const [vaccineName, setVaccineName] = useState(existingRecord?.name ?? "");
-  const [vaccineDate, setVaccineDate] = useState(
-    existingRecord ? new Date(existingRecord.dateAdministered) : new Date(),
+  const [medicationName, setMedicationName] = useState(
+    existingRecord?.name ?? "",
+  );
+  const [medicationDosage, setMedicationDosage] = useState(
+    existingRecord?.dosage ?? "",
+  );
+  const [medicationInstructions, setMedicationInstructions] = useState(
+    existingRecord?.instructions ?? "",
   );
   const [error, setError] = useState("");
 
-  const deleteVaccine = useCallback(() => {
+  const deleteMedication = useCallback(() => {
     if (!pet || !existingRecord) {
       return;
     }
 
     Alert.alert(
-      "Delete Vaccine",
-      "Are you sure you want to delete this vaccine?",
+      "Delete Medication",
+      "Are you sure you want to delete this medication?",
       [
         {
           text: "Cancel",
@@ -59,7 +63,7 @@ export const VaccineRecordForm = ({
             })
               .then(() => navigation.goBack())
               .catch(() => {
-                setError("Failed to delete vaccine, please try again");
+                setError("Failed to delete medication, please try again");
               });
           },
         },
@@ -74,8 +78,8 @@ export const VaccineRecordForm = ({
           ? () => (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Delete vaccine"
-                onPress={deleteVaccine}
+                accessibilityLabel="Delete medication"
+                onPress={deleteMedication}
                 style={({ pressed }) => [
                   styles.deleteButton,
                   pressed && styles.deleteButtonPressed,
@@ -92,38 +96,39 @@ export const VaccineRecordForm = ({
         headerRight: undefined,
       });
     };
-  }, [deleteVaccine, existingRecord, isEditing, navigation]);
+  }, [deleteMedication, existingRecord, isEditing, navigation]);
 
-  const saveVaccine = () => {
+  const saveMedication = () => {
     if (!pet) {
       setError("Pet not found");
       return;
     }
 
     if (isEditing && !existingRecord) {
-      setError("Vaccine not found");
+      setError("Medication not found");
       return;
     }
 
-    const trimmedName = vaccineName.trim();
+    const trimmedName = medicationName.trim();
 
     if (trimmedName.length === 0) {
-      setError("Please enter a vaccine name");
+      setError("Please enter a medication name");
       return;
     }
 
     const medicalRecords = pet.medicalRecords ?? [];
-    const savedVaccine: VaccineRecord = {
+    const savedMedication: MedicationRecord = {
       id: existingRecord?.id ?? Date.now().toString(),
-      type: "vaccine",
+      type: "medication",
       name: trimmedName,
-      dateAdministered: vaccineDate.toISOString(),
+      dosage: medicationDosage.trim(),
+      instructions: medicationInstructions.trim(),
     };
     const updatedRecords = existingRecord
       ? medicalRecords.map((record) =>
-          record.id === existingRecord.id ? savedVaccine : record,
+          record.id === existingRecord.id ? savedMedication : record,
         )
-      : [...medicalRecords, savedVaccine];
+      : [...medicalRecords, savedMedication];
 
     updatePet({
       ...pet,
@@ -131,13 +136,17 @@ export const VaccineRecordForm = ({
     })
       .then(() => navigation.goBack())
       .catch(() => {
-        setError("Failed to save vaccine, please try again");
+        setError("Failed to save medication, please try again");
       });
   };
 
   if (!pet) {
     return (
-      <Screen title="Vaccine" buttonTitle="Save" onButtonPress={saveVaccine}>
+      <Screen
+        title="Medication"
+        buttonTitle="Save"
+        onButtonPress={saveMedication}
+      >
         <AppText style={styles.errorText}>Pet not found</AppText>
       </Screen>
     );
@@ -145,36 +154,42 @@ export const VaccineRecordForm = ({
 
   if (isEditing && !existingRecord) {
     return (
-      <Screen title="Vaccine" buttonTitle="Save" onButtonPress={saveVaccine}>
-        <AppText style={styles.errorText}>Vaccine not found</AppText>
+      <Screen
+        title="Medication"
+        buttonTitle="Save"
+        onButtonPress={saveMedication}
+      >
+        <AppText style={styles.errorText}>Medication not found</AppText>
       </Screen>
     );
   }
 
   return (
     <Screen
-      title={isEditing ? "Edit Vaccine" : "Add Vaccine"}
+      title={isEditing ? "Edit Medication" : "Add Medication"}
       buttonTitle="Save"
-      onButtonPress={saveVaccine}
+      onButtonPress={saveMedication}
     >
       <Input
-        label="Vaccine name"
-        value={vaccineName}
+        label="Medication name"
+        value={medicationName}
         onChangeText={(text) => {
           setError("");
-          setVaccineName(text);
+          setMedicationName(text);
         }}
       />
-      <AppText style={styles.label}>Administered date</AppText>
-      <DateTimePicker
-        value={vaccineDate}
-        mode="date"
-        display="spinner"
-        onChange={(_event, selectedDate) => {
-          if (selectedDate) {
-            setVaccineDate(selectedDate);
-          }
-        }}
+      <Input
+        label="Dosage"
+        value={medicationDosage}
+        onChangeText={setMedicationDosage}
+      />
+      <Input
+        label="Instructions"
+        value={medicationInstructions}
+        onChangeText={setMedicationInstructions}
+        multiline
+        style={styles.instructionsInput}
+        textAlignVertical="top"
       />
       {error ? <AppText style={styles.errorText}>{error}</AppText> : null}
     </Screen>
@@ -192,8 +207,8 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 20,
   },
-  label: {
-    fontWeight: "600",
+  instructionsInput: {
+    minHeight: 96,
   },
   errorText: {
     color: "red",

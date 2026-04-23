@@ -1,18 +1,11 @@
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
-
-import { useNavigation } from "@react-navigation/native";
-import { useAppData } from "../context/AppDataContext";
-import { Input } from "../design-system/Input";
-import { Screen } from "../design-system/Screen";
-import { AppText } from "../design-system/TextComponent";
-import { RootScreen, type RootStackParamList } from "../navigation/routes";
-
-type CreateUsernameProps = NativeStackNavigationProp<RootStackParamList>;
+import { useAppData } from "../Context/AppDataContext";
+import { Input } from "../Design-System/Input";
+import { Screen } from "../Design-System/Screen";
+import { AppText } from "../Design-System/TextComponent";
 
 export const CreateUsername = () => {
-  const navigation = useNavigation<CreateUsernameProps>();
   const { setUsername } = useAppData();
   const [username, setUsernameInput] = useState("");
   const [error, setError] = useState("");

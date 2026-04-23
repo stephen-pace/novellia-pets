@@ -37,13 +37,23 @@ export function PhotoPicker({
     <View style={styles.container}>
       <AppText style={styles.label}>{label}</AppText>
 
-      <Pressable style={styles.button} onPress={handlePickImage}>
+      <Pressable
+        accessibilityLabel={value ? `Change ${label.toLowerCase()}` : `Choose ${label.toLowerCase()}`}
+        accessibilityRole="button"
+        style={styles.button}
+        onPress={handlePickImage}
+      >
         <AppText>{value ? "Change photo" : "Choose photo"}</AppText>
       </Pressable>
 
       {value ? (
         <View style={styles.previewWrapper}>
-          <Image source={{ uri: value }} style={styles.preview} />
+          <Image
+            accessibilityLabel={`${label} preview`}
+            accessible
+            source={{ uri: value }}
+            style={styles.preview}
+          />
           <Pressable
             onPress={() => onChange(null)}
             style={styles.removeButton}
