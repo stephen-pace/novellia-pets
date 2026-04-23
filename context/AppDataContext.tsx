@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 
-import { loadAppData, saveAppData } from "../storage/appData";
+import { clearAppData, loadAppData, saveAppData } from "../storage/appData";
 import type { AppData, Pet } from "../types";
 
 type AppDataContextValue = {
@@ -21,6 +21,7 @@ type AppDataContextValue = {
   addPet: (pet: Pet) => Promise<void>;
   updatePet: (pet: Pet) => Promise<void>;
   removePet: (petId: string) => Promise<void>;
+  resetAppData: () => Promise<void>;
 };
 
 const defaultAppData: AppData = {
@@ -122,6 +123,12 @@ export const AppDataProvider = ({ children }: AppDataProviderProps) => {
     }));
   };
 
+  const resetAppData = async () => {
+    await clearAppData();
+    setAppData(defaultAppData);
+    setSelectedPetId(null);
+  };
+
   return (
     <AppDataContext.Provider
       value={{
@@ -136,6 +143,7 @@ export const AppDataProvider = ({ children }: AppDataProviderProps) => {
         addPet,
         updatePet,
         removePet,
+        resetAppData,
       }}
     >
       {children}

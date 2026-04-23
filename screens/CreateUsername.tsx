@@ -17,21 +17,22 @@ export const CreateUsername = () => {
   const [username, setUsernameInput] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = () => {
-    if (username.trim().length === 0) {
+  const handleSubmit = async () => {
+    const trimmedUsername = username.trim();
+
+    if (trimmedUsername.length === 0) {
       setError("Please enter a username");
       return;
     }
 
     setError("");
 
-    setUsername(username)
-      .then(() => {
-        navigation.navigate(RootScreen.AddPet);
-      })
-      .catch(() => {
-        setError("Failed to save username, please try again");
-      });
+    try {
+      // This will cause the navigator to remount and show AddPet.tsx
+      await setUsername(trimmedUsername);
+    } catch {
+      setError("Failed to save username, please try again");
+    }
   };
 
   return (
@@ -41,6 +42,7 @@ export const CreateUsername = () => {
       onButtonPress={handleSubmit}
     >
       <Input
+        placeholder="User123"
         label="Username"
         value={username}
         onChangeText={(text) => {

@@ -78,5 +78,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: "left",
+    marginTop: 32,
   },
 });

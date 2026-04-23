@@ -10,12 +10,12 @@ import {
   View,
 } from "react-native";
 
-import { useAppData } from "../context/AppDataContext";
-import { Button } from "../design-system/Button";
-import { Input } from "../design-system/Input";
-import { SelectField, type SelectOption } from "../design-system/Picker";
-import { AppText, Title } from "../design-system/TextComponent";
-import type { AnimalType } from "../types";
+import { useAppData } from "../../context/AppDataContext";
+import { Button } from "../../design-system/Button";
+import { Input } from "../../design-system/Input";
+import { SelectField, type SelectOption } from "../../design-system/Picker";
+import { AppText, Title } from "../../design-system/TextComponent";
+import type { AnimalType } from "../../types";
 
 type EditableField = "name" | "breed" | "dateOfBirth" | "animalType" | null;
 
@@ -427,6 +427,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 32,
+    lineHeight: 40,
     fontWeight: "600",
   },
   photoEditButton: {

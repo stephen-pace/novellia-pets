@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    textAlign: "left",
+    textAlign: "center",
     marginBottom: 16,
   },
   content: {

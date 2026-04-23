@@ -22,7 +22,9 @@ import { AllergiesTab } from "./screens/Allergies";
 import { MedicationsTab } from "./screens/Medications";
 import { PetSelectorHeaderButton } from "./features/pets/PetSelectorHeaderButton";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { ProfileTab } from "./screens/Profile";
+
+import { ProfileMenu } from "./screens/profile/ProfileMenu";
+import { ProfileTab } from "./screens/profile/Profile";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -71,9 +73,11 @@ const HomeTabs = () => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerLeft:
-        currentPet && selectedTab !== HomeTab.Profile
-          ? () => (
+      headerLeft: currentPet
+        ? () =>
+            selectedTab === HomeTab.Profile ? (
+              <ProfileMenu />
+            ) : (
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Add medical record"
@@ -86,7 +90,7 @@ const HomeTabs = () => {
                 <FontAwesome5 name="plus" size={16} color="#00A36C" />
               </Pressable>
             )
-          : undefined,
+        : undefined,
     });
 
     return () => {
@@ -159,16 +163,31 @@ const HomeTabs = () => {
 };
 
 const AppNavigator = () => {
-  const { isLoading, username } = useAppData();
+  const { isLoading, username, pets } = useAppData();
+  const appFlowKey = !username
+    ? "unauthenticated"
+    : pets.length === 0
+      ? "setup"
+      : "authenticated";
+
+  const determineInitialScreen = () => {
+    if (username && pets.length > 0) {
+      return RootScreen.Home;
+    } else if (username) {
+      return RootScreen.AddPet;
+    }
+    return RootScreen.Welcome;
+  };
 
   if (isLoading) {
     return null;
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer key={appFlowKey}>
       <Stack.Navigator
-        initialRouteName={username ? RootScreen.Home : RootScreen.Welcome}
+        key={appFlowKey}
+        initialRouteName={determineInitialScreen()}
         screenOptions={{
           headerBackTitle: "Back",
           headerShown: false,
@@ -190,6 +209,7 @@ const AppNavigator = () => {
         />
         <Stack.Screen
           options={{
+            title: "",
             headerShown: true,
             headerRight: () => <PetSelectorHeaderButton />,
           }}
@@ -250,7 +270,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   headerAddButton: {
-    alignItems: "center",
     height: 36,
     justifyContent: "center",
     width: 36,
