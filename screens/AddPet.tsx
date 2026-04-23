@@ -29,7 +29,7 @@ const animalOptions = [
 export const AddPet = () => {
   const navigation = useNavigation<AddPetNavigation>();
   const route = useRoute<AddPetRoute>();
-  const { addPet } = useAppData();
+  const { addPet, setSelectedPetId } = useAppData();
   const isFromHome = route.params?.source === "home";
   const title = isFromHome ? "Add a pet" : "Add your first pet!";
 
@@ -54,6 +54,7 @@ export const AddPet = () => {
       photoUri,
     })
       .then(() => {
+        setSelectedPetId(id);
         navigation.navigate(RootScreen.Home);
       })
       .catch(() => Alert.alert("Failed to save pet", "Please try again"));

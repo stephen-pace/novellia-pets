@@ -1,15 +1,15 @@
 export type AnimalType = "dog" | "cat" | "bird" | "rabbit";
 
-type Reaction = "hives" | "rash" | "swelling" | "vomiting";
+export type Reaction = "hives" | "rash" | "swelling" | "vomiting";
 
-type VaccineRecord = {
+export type VaccineRecord = {
   id: string;
   type: "vaccine";
   name: string;
   dateAdministered: string; // ISO string
 };
 
-type AllergyRecord = {
+export type AllergyRecord = {
   id: string;
   type: "allergy";
   name: string;
@@ -17,7 +17,7 @@ type AllergyRecord = {
   severity: "mild" | "severe";
 };
 
-type MedicationRecord = {
+export type MedicationRecord = {
   id: string;
   type: "medication";
   name: string;
@@ -25,7 +25,7 @@ type MedicationRecord = {
   instructions: string;
 };
 
-type MedicalRecord = VaccineRecord | AllergyRecord | MedicationRecord;
+export type MedicalRecord = VaccineRecord | AllergyRecord | MedicationRecord;
 
 export type Pet = {
   id: string;
