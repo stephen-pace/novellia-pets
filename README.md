@@ -2,6 +2,8 @@
 
 Novellia Pets is a small Expo React Native app for managing a pet's medical information.
 
+[Click here to see video walkthrough](https://www.loom.com/share/534ebea98915467995f143a60c9acd71)
+
 ## What it does
 
 - Create a username
