@@ -21,11 +21,14 @@ export const VaccineRecordForm = ({
 }: VaccineRecordFormProps) => {
   const { petId, recordId } = route.params;
   const { pets, updatePet } = useAppData();
+
   const pet = pets.find((existingPet) => existingPet.id === petId);
   const existingRecord = (pet?.medicalRecords ?? []).find(
     (record): record is VaccineRecord =>
       record.type === "vaccine" && record.id === recordId,
   );
+
+  // Helps determine if this is a new vaccine being added or editing an existing vaccine
   const isEditing = Boolean(recordId);
 
   const [vaccineName, setVaccineName] = useState(existingRecord?.name ?? "");

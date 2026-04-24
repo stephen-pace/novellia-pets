@@ -47,6 +47,7 @@ export const AppDataProvider = ({ children }: AppDataProviderProps) => {
   useEffect(() => {
     const loadInitialAppData = async () => {
       try {
+        // Load persisted data from local storage
         const storedAppData = await loadAppData();
         setAppData(storedAppData);
         setSelectedPetId(storedAppData.pets[0]?.id ?? null);
@@ -88,6 +89,7 @@ export const AppDataProvider = ({ children }: AppDataProviderProps) => {
     });
 
     if (nextAppData) {
+      // Saves to local storage
       await saveAppData(nextAppData);
     }
   };
@@ -124,6 +126,7 @@ export const AppDataProvider = ({ children }: AppDataProviderProps) => {
   };
 
   const resetAppData = async () => {
+    // Clears local storage to return app to onboarding state
     await clearAppData();
     setAppData(defaultAppData);
     setSelectedPetId(null);

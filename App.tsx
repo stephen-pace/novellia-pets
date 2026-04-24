@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { AppDataProvider, useAppData } from "./Context/AppDataContext";
 import { RootScreen, type RootStackParamList } from "./Navigation/routes";
 import { AddPet } from "./Screens/AddPet";
@@ -23,6 +23,7 @@ import { PetSelectorHeaderButton } from "./Navigation/PetSelectorHeaderButton";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { ProfileMenu } from "./Screens/Profile/ProfileMenu";
 import { ProfileTab } from "./Screens/Profile/Profile";
+import { AddMedicalRecordButton } from "./Navigation/AddMedicalRecordButton";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
@@ -77,17 +78,9 @@ const HomeTabs = () => {
             selectedTab === HomeTab.Profile ? (
               <ProfileMenu />
             ) : (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Add medical record"
-                onPress={navigateToAddMedicalRecord}
-                style={({ pressed }) => [
-                  styles.headerAddButton,
-                  pressed && styles.headerAddButtonPressed,
-                ]}
-              >
-                <FontAwesome5 name="plus" size={16} color="#00A36C" />
-              </Pressable>
+              <AddMedicalRecordButton
+                navigateToAddMedicalRecord={navigateToAddMedicalRecord}
+              />
             )
         : undefined,
     });
@@ -100,7 +93,8 @@ const HomeTabs = () => {
     };
   }, [currentPet, navigateToAddMedicalRecord, navigation, selectedTab]);
 
-  // Tab navigator for medical records since it keeps the UX clear and data
+  // Tab navigator for medical records
+  // Keeps UI clean and state management separate per record type
   return (
     <Tab.Navigator
       screenOptions={{
@@ -262,13 +256,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  headerAddButton: {
-    height: 36,
-    justifyContent: "center",
-    width: 36,
-  },
-  headerAddButtonPressed: {
-    opacity: 0.7,
   },
 });
