@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Alert, Pressable, StyleSheet } from "react-native";
+import { Alert, FlatList, Pressable, StyleSheet, View } from "react-native";
 import { useCallback, useEffect, useState } from "react";
 
 import { useAppData } from "../../Context/AppDataContext";
@@ -7,7 +7,7 @@ import { AppText } from "../../Design-System/TextComponent";
 import { Input } from "../../Design-System/Input";
 import { Screen } from "../../Design-System/Screen";
 import { RootScreen, type RootStackParamList } from "../../Navigation/routes";
-import type { MedicationRecord } from "../../types";
+import type { MedicalRecord, MedicationRecord } from "../../types";
 
 type MedicationRecordFormProps = NativeStackScreenProps<
   RootStackParamList,
@@ -25,6 +25,9 @@ export const MedicationRecordForm = ({
     (record): record is MedicationRecord =>
       record.type === "medication" && record.id === recordId,
   );
+
+  const [medMatches, setMedMatches] = useState<MedicalRecord[]>([]);
+
   const isEditing = Boolean(recordId);
 
   const [medicationName, setMedicationName] = useState(
@@ -38,6 +41,18 @@ export const MedicationRecordForm = ({
   );
   const [error, setError] = useState("");
 
+  const searchForAutocomplete = (text: string) => {
+    if (text.length === 0) {
+      setMedMatches([]);
+      return;
+    }
+
+    const matches = pet?.medicalRecords?.filter((record) => {
+      return record.name.includes(text);
+    });
+
+    if (matches) setMedMatches(matches);
+  };
   const deleteMedication = useCallback(() => {
     if (!pet || !existingRecord) {
       return;
@@ -176,6 +191,22 @@ export const MedicationRecordForm = ({
         onChangeText={(text) => {
           setError("");
           setMedicationName(text);
+          searchForAutocomplete(text);
+        }}
+      />
+      <FlatList
+        data={medMatches}
+        renderItem={({ item }) => {
+          return (
+            <Pressable
+              onPress={() => {
+                setMedicationName(item.name);
+                setMedMatches([]);
+              }}
+            >
+              <AppText>{item.name}</AppText>
+            </Pressable>
+          );
         }}
       />
       <Input
